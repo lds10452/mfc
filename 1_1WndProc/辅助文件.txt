@@ -1,0 +1,109 @@
+CMyFrameWnd* pFrame = new CMyFrameWnd;
+pFrame->Create(NULL, "MFCCreate")//函数内部this为pFrame（自己new框架类对象地址）
+{
+  //加载菜单
+  CreateEx(..., NULL,...)//函数内部this为pFrame
+  {
+    CREATESTRUCT cs;
+    ....
+    cs.lpszClass = NULL;//下面将更改
+    ...
+    cs.hInstance = AfxGetInstanceHandle();
+    PreCreateWindow(cs)
+    {
+      AfxDeferRegisterClass(...)
+      {
+        WNDCLASS wndcls;
+	...
+	wndcls.lpfnWndProc = DefWindowProc;//下面将更改
+        ...
+        _AfxRegisterWithIcon(&wndcls, "AfxFrameOrView100sd"..)
+        {
+          &wndcls->lpszClassName = "AfxFrameOrView100sd";
+          ::RegisterClass(&wndcls)
+        }
+      }
+      cs.lpszClass = _afxWndFrameOrView; //"AfxFrameOrView100sd"
+    }
+    AfxHookWindowCreate(pFrame)
+    {
+      _AFX_THREAD_STATE* pThreadState = _afxThreadState.GetData();
+                       //获取全局变量&ccc（当前程序线程信息）
+       ::SetWindowsHookEx(WH_CBT,_AfxCbtFilterHook,...);
+                       //利用Win32的API函数，埋下一个类型为WH_CBT的钩子
+       pThreadState->m_pWndInit = pFrame;
+                       //将自己new的框架类对象pFrame保存到全局变量ccc的一个成员中。
+    }
+    ::CreateWindowEx(...);//此函数一旦执行成功，立即转到钩子处理函数。
+  }
+}
+
+钩子处理函数
+_AfxCbtFilterHook(.wParam.)
+{
+  _AFX_THREAD_STATE* pThreadState = _afxThreadState.GetData();//获取&ccc
+  CWnd* pWndInit = pThreadState->m_pWndInit;//获取pFrame===pWndInit
+  HWND hWnd = (HWND)wParam;//刚刚创建成功的框架窗口句柄
+  pWndInit->Attach(hWnd)//函数内部this为pFrame，参数为窗口句柄
+  {
+    CHandleMap* pMap = afxMapHWND(TRUE)
+    {
+      AFX_MODULE_THREAD_STATE* pState = AfxGetModuleThreadState();//获取&bbb
+      pState->m_pmapHWND = new CHandleMap(..);
+                 //new了一个映射类对象，并将对象地址保存到bbb的一个成员中
+      return pState->m_pmapHWND;
+                 //返回映射类对象地址
+    }
+    pMap->SetPermanent(m_hWnd = hWnd, pFrame)//函数内部this为pMap
+    {
+      m_permanentMap[hWnd] = pFrame;
+    }
+  }
+  (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC,AfxWndProc);
+               //将窗口处理函数更改为AfxWndProc（才是真正的窗口处理函数）
+}
+
+
+//以WM_CREATE消息为例,捎带想着点WM_PAINT消息
+AfxWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
+{
+  CWnd* pWnd = CWnd::FromHandlePermanent(hWnd)
+  {
+    CHandleMap* pMap = afxMapHWND()
+    {
+      AFX_MODULE_THREAD_STATE* pState = AfxGetModuleThreadState();//获取&bbb
+      return pState->m_pmapHWND;//返回就是之前保存在bbb中的映射类对象地址
+    }
+    pWnd = pMap->LookupPermanent(hWnd)//函数内部this为pMap
+    {
+      return m_permanentMap[hWnd];//返回的为pFrame
+    }
+  }
+  AfxCallWndProc(pWnd, hWnd, nMsg, wParam, lParam)//参数pWnd===pFrame
+  {
+    pWnd->WindowProc(nMsg, wParam, lParam);//回到自己的代码
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
