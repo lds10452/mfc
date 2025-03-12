@@ -1,5 +1,5 @@
 #include <afxwin.h>
-#define WM_MYMESSAGE WM_USER+1001
+#define WM_MYMESSAGE WM_USER+1001 //自定义消息
 class CMyFrameWnd : public CFrameWnd {
 	DECLARE_MESSAGE_MAP()
 public:
@@ -11,10 +11,10 @@ public:
 	int m_y;
 };
 BEGIN_MESSAGE_MAP(CMyFrameWnd, CFrameWnd)
-	ON_WM_CREATE()
+	ON_WM_CREATE()//标准消息
 	ON_WM_PAINT()
 	ON_WM_MOUSEMOVE()
-	ON_MESSAGE(WM_MYMESSAGE, OnMyMessage)
+	ON_MESSAGE(WM_MYMESSAGE, OnMyMessage)//自定义消息
 END_MESSAGE_MAP()
 
 LRESULT CMyFrameWnd::OnMyMessage(WPARAM wParam, LPARAM lParam) {
@@ -36,7 +36,7 @@ void CMyFrameWnd::OnPaint() {
 }
 int CMyFrameWnd::OnCreate(LPCREATESTRUCT pcs) {
 	AfxMessageBox("WM_CREATE消息被处理");
-	::PostMessage(this->m_hWnd, WM_MYMESSAGE, 1, 2);
+	::PostMessage(this->m_hWnd, WM_MYMESSAGE, 1, 2);//发送自定义消息
 	return CFrameWnd::OnCreate(pcs);
 }
 class CMyWinApp : public CWinApp {
