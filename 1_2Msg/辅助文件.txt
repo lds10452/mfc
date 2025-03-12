@@ -1,0 +1,34 @@
+//以WM_CREATE消息为例,捎带想着点WM_PAINT,WM_COMMAND(到了CWnd::OnWndMsg函数路线不一样)
+AfxWndProc(...)
+{
+  CWnd* pWnd = CWnd::FromHandlePermanent(hWnd);
+             //获取和hWnd绑定在一起的框架类对象地址(pFrame===pWnd)
+  AfxCallWndProc(pWnd...)//参数pWnd===pFrame
+  { 
+    pWnd->WindowProc(...)//函数内部this为pFrame===pWnd *************
+    {
+      OnWndMsg(...)//函数内部this为pFrame===pWnd
+      {
+        const AFX_MSGMAP* pMessageMap = GetMessageMap();
+                       //获取本类宏站开的静态变量的地址（链表头结点）
+        const AFX_MSGMAP_ENTRY* lpEntry;
+
+        for (; pMessageMap->pfnGetBaseMap != NULL;//此for就是在遍历链表
+			pMessageMap = (*pMessageMap->pfnGetBaseMap)())
+        {
+           lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries,message, 0, 0));
+                           //如果找到返回找到的数组元素的地址，如果没找到返回NULL
+           if(lpEntry != NULL )
+           {
+             goto LDispatch;
+           }
+           
+        }
+        LDispatch:
+            lpEntry->pfn; //CMyFrameWnd::OnCreate
+            调用CMyFrameWnd::OnCreate函数完成消息的处理
+        
+      }
+    }
+  }
+}
