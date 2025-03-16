@@ -11,10 +11,10 @@ public:
 	int m_y;
 };
 BEGIN_MESSAGE_MAP(CMyFrameWnd, CFrameWnd)
-	ON_WM_CREATE()//标准消息
+	ON_WM_CREATE()//标准消息，函数名指定为OnCreate
 	ON_WM_PAINT()
 	ON_WM_MOUSEMOVE()
-	ON_MESSAGE(WM_MYMESSAGE, OnMyMessage)//自定义消息
+	ON_MESSAGE(WM_MYMESSAGE, OnMyMessage)//自定义消息，可以修改函数名
 END_MESSAGE_MAP()
 
 LRESULT CMyFrameWnd::OnMyMessage(WPARAM wParam, LPARAM lParam) {
