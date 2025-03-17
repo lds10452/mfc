@@ -1,0 +1,43 @@
+yellowdog.IsKindOf( RUNTIME_CLASS(CDog))//函数内部this为&yellowdog，参数为链表头
+{
+  CRuntimeClass* pClassThis = GetRuntimeClass();
+                     //利用&yellowdog调用宏展开虚函数,获取链表头结点
+
+  return pClassThis->IsDerivedFrom(RUNTIME_CLASS(CDog))
+				//函数内部this为链表头，参数也为链表头
+  {
+    const CRuntimeClass* pClassThis = this;//获取链表头
+    while (pClassThis != NULL)
+    {
+      	if (pClassThis == RUNTIME_CLASS(CDog))
+	    return TRUE;
+        pClassThis = pClassThis->m_pBaseClass;
+    }
+    return FALSE;
+  }
+}
+****************************************************
+动态创建机制
+****************************************************
+RUNTIME_CLASS(CDog)->CreateObject()//函数内部this为本类(CDog)的静态变量地址（链表头
+{
+  CObject* pObject = (*m_pfnCreateObject)() //CDog::CreateObject
+  {
+    return new CDog; 
+  }
+  return pObject;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
