@@ -1,0 +1,67 @@
+CMyFrameWnd* pFrame = new CMyFrameWnd;
+CMyDoc* pDoc = new CMyDoc;
+
+CCreateContext cct;
+cct.m_pCurrentDoc = pDoc;//文档类对象地址
+cct.m_pNewViewClass = RUNTIME_CLASS(CMyView);//&CMyView::classCMyView
+
+pFrame->LoadFrame(... &cct)//函数内部this为pFrame
+{
+  Create(...,&cct)//函数内部this为pFrame
+  {
+    CreateEx(...&cct)//函数内部this为pFrame
+    {
+      CREATESTRUCT cs;
+      ....
+      cs.lpCreateParams = &cct;
+      ::CreateWindowEx(...,&cct);//创建主框架窗口
+    }
+  }
+}
+//处理框架窗口的WM_CREATE消息
+CFrameWnd::OnCreate( pcs )//函数内部this为pFrame,参数可以获取::CreateWindowEx的12个参数
+{
+  CCreateContext* pContext = (CCreateContext*)pcs->lpCreateParams;//获取&cct
+  OnCreateHelper(pcs, pContext)//函数内部this为pFrame，pContext===&cct
+  {
+    OnCreateClient(pcs, pContext)//函数内部this为pFrame，pContext===&cct
+    {
+      CreateView(pContext..)//函数内部this为pFrame，pContext===&cct
+      {
+        CWnd* pView = pContext->m_pNewViewClass->CreateObject();
+                            //动态创建视图类对象，并返回对象地址
+        pView->Create(..,pContext)//函数内部this为pView，pContext===&cct
+        {
+          CreateEx(..,pContext）//函数内部this为pView，pContext===&cct
+          {
+            CREATESTRUCT cs;
+            ....
+            cs.lpCreateParams = pContext;//pContext===&cct
+            ::CreateWindowEx(...,pContext);//创建视图窗口         
+          }
+        }
+      }
+    }
+  }
+}
+
+//处理视图窗口的WM_CREATE消息
+CView::OnCreate( pcs )//函数内部this为pView,参数可以获取::CreateWindowEx函数的12个参数
+{
+  CCreateContext* pContext = (CCreateContext*)lpcs->lpCreateParams;//获取&cct
+  pContext->m_pCurrentDoc->AddView(pView)//函数内部this为pDoc,参数为视图类对象地址
+  {
+    m_viewList.AddTail(pView);//文档类对象用一个链表成员变量,保存视图类对象地址
+    pView->m_pDocument = this;//视图类对象用一个普通成员变量,保存文档类对象地址
+  }
+}
+
+
+
+
+
+
+
+
+
+
