@@ -1,0 +1,50 @@
+**********************************************
+OnFileNew内部执行过程
+**********************************************
+OnFileNew( )//函数内部this为&theApp
+{
+  m_pDocManager->OnFileNew()//函数内部this为文档管理类对象地址
+  {
+    CDocTemplate* pTemplate = m_templateList.GetHead();//取出单文档模板类对象地址
+    pTemplate->OpenDocumentFile()//函数内部this为单文档模板类对象地址
+    {
+      OpenDocumentFile(..)//函数内部this为单文档模板类对象地址
+      {
+        pDocument = CreateNewDocument()//函数内部this为单文档模板类对象地址
+        {
+          CDocument* pDocument = m_pDocClass->CreateObject();
+                               //动态创建文档类对象，并返回对象地址
+          AddDocument(pDocument)//函数内部this为单文档模板类对象地址
+          {
+            m_pOnlyDoc = pDocument;
+          }
+        }
+        pFrame = CreateNewFrame(pDocument..)//函数内部this为单文档模板类对象地址
+        {
+          CCreateContext context;
+	  ...
+	  context.m_pCurrentDoc = pDocument;//文档类对象地址
+	  context.m_pNewViewClass = m_pViewClass;//RUNTIME_CLASS(CMyView)
+          CFrameWnd* pFrame = (CFrameWnd*)m_pFrameClass->CreateObject();
+                               //动态创建框架类对象，并返回对象地址
+          pFrame->LoadFrame(...., &context);//创建框架窗口
+                      //后续过程看前一天的伪代码
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
