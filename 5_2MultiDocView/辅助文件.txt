@@ -1,0 +1,54 @@
+CMyFrameWnd* pFrame = new CMyFrameWnd;
+pFrame->LoadFrame( IDR_MENU1 )//函数内部this为pFrame
+{
+  CFrameWnd::LoadFrame(..)//函数内部this为pFrame
+  {
+    Create(..)//函数内部this为pFrame
+    {
+      CreateEx(..)//函数内部this为pFrame
+      {
+         //就会主框架窗口。
+      }
+    }
+  }
+}
+
+**********************************************
+OnFileNew内部执行过程
+**********************************************
+OnFileNew( )//函数内部this为&theApp
+{
+  m_pDocManager->OnFileNew()//函数内部this为文档管理类对象地址
+  {
+    CDocTemplate* pTemplate = m_templateList.GetHead();//取出多文档模板类对象地址
+    pTemplate->OpenDocumentFile()//函数内部this为多文档模板类对象地址
+    {
+      OpenDocumentFile(..)//函数内部this为多文档模板类对象地址
+      {
+        pDocument = CreateNewDocument()//函数内部this为多文档模板类对象地址
+        {
+          CDocument* pDocument = m_pDocClass->CreateObject();
+                               //动态创建文档类对象，并返回对象地址
+          AddDocument(pDocument)//函数内部this为多文档模板类对象地址
+          {
+             m_docList.AddTail(pDoument);//将文档类对象扔到多文档模板类的链表成员中
+          }
+        }
+        pFrame = CreateNewFrame(pDocument..)//函数内部this为多文档模板类对象地址
+        {
+          CCreateContext context;
+	  ...
+	  context.m_pCurrentDoc = pDocument;//文档类对象地址
+	  context.m_pNewViewClass = m_pViewClass;//RUNTIME_CLASS(CMyView)
+          CFrameWnd* pFrame = (CFrameWnd*)m_pFrameClass->CreateObject();
+                               //动态创建框子架类对象，并返回对象地址
+          pFrame->LoadFrame(...., &context);//创建子框架窗口
+                      //后续过程看前二天的伪代码
+        }
+      }
+    }
+  }
+}
+
+
+
