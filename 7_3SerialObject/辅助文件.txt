@@ -1,0 +1,37 @@
+CFile file;
+file.Open("E:/MFC/Day08/serial.txt", CFile::modeCreate|CFile::modeWrite);
+CArchive ar(&file, CArchive::store, 4096);//归档类对象,维护缓冲区。
+CMyDoc data(18, 88.5, "zhangsan");
+ar << &data === operator<<(ar, const &data)
+{
+  ar.WriteObject(&data)//函数内部this为&ar
+  {
+    CRuntimeClass* pClassRef = &data->GetRuntimeClass();//文档类静态变量
+    WriteClass(pClassRef);//将类的相关信息（类名/类大小/类版本）存入ar维护的buff中
+    (&data)->Serialize(ar)//函数内部this为&data
+    {
+      ar << this->m_age << this->m_score << this->m_name; //序列化基本类型变量
+    }
+  }
+}
+
+CFile file;
+file.Open( "E:/MFC/day08/serial.txt", CFile::modeRead );
+CArchive ar( &file, CArchive::load, 4096 );//维护一个buff，大小4096字节
+CMyDoc* pdata = NULL;//????????????
+ar >> pdata === operator>>(ar, pdata) 
+{
+  pdata = ar.ReadObject(RUNTIME_CLASS(CMyDoc))//函数内部this为&ar
+  {
+    CRuntimeClass* pClassRef = ReadClass(RUNTIME_CLASS(CMyDoc),...);
+           //从文件读取 类的相关信息，和 RUNTIME_CLASS(CMyDoc)中信息进行比对，
+           //如果相同返回RUNTIME_CLASS(CMyDoc),如果不同返回NULL
+    CObject*pOb = RUNTIME_CLASS(CMyDoc)->CreateObject();
+           //动态创建CMyDoc类的对象，并返回对象地址
+    pOb->Serialize(ar)//函数内部this为刚刚创建的CMyDoc类对象（pOb）
+    {
+      ar >> m_age >> m_score >> m_name;//反序列化基本类型变量
+    }
+    return pOb;
+  }
+}
