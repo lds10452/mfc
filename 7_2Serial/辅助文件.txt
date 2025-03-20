@@ -1,0 +1,76 @@
+***********************************************
+序列化数据的过程
+***********************************************
+class CArchive{        
+        enum Mode { store = 0, load = 1…};
+	BOOL m_nMode;  //访问方式
+	int m_nBufSize;    //buff的大小
+	CFile* m_pFile;     //操作的文件对象
+	BYTE* m_lpBufCur;  //当前指向
+	BYTE* m_lpBufMax;  //终止指向
+	BYTE* m_lpBufStart;  //开始指向
+	….
+}	
+CFile file;
+file.Open( "E:/MFC/Day07/serial.txt", CFile::modeCreate | CFile::modeWrite );
+CArchive ar(&file, CArchive::store, 4096) === CArchive::CArchive(&file，0， 4096)
+{
+  m_nMode = CArchive::store; // 0
+  m_pFile = &file;//“E:/....serial.txt”
+  m_nBufSize = 4096;
+  m_lpBufStart = new BYTE[m_nBufSize];
+  m_lpBufMax = m_lpBufStart + 4096;
+  m_lpBufCur =  m_lpBufStart;
+}
+
+long age = 18;
+ar << age === CArchive::operator<<(age)//函数内部this为&ar
+{
+  if (m_lpBufCur + sizeof(LONG) > m_lpBufMax) 
+  {
+    Flush();
+  }
+  *m_lpBufCur = age;
+  m_lpBufCur += sizeof(LONG); 
+}
+
+float score = 88.5;
+ar << score === CArchive::operator<<(score)//函数内部this为&ar
+{
+  if (m_lpBufCur + sizeof(float) > m_lpBufMax) 
+  {
+    Flush();
+  }
+  *m_lpBufCur = score;//88.5 
+  m_lpBufCur += sizeof(float);
+}
+
+CString name = "zhangsan";  
+ar << name === CArchive::operator<<(name)//函数内部this为&ar
+{
+  AfxWriteStringLength(ar, 8 )
+  {
+    ar<<(unsigned char)nLength;//8
+  }
+  Write(name, 8)//函数内部this为&ar
+  {
+    memcpy_s(m_lpBufCur, (size_t)(m_lpBufMax - m_lpBufCur), name, 8);
+    m_lpBufCur += 8;
+  }
+}
+
+ar.Close( )//函数内部this为&ar
+{
+  Flush()//函数内部this为&ar
+  {
+    &file->Write(m_lpBufStart, ULONG(m_lpBufCur - m_lpBufStart));
+    m_lpBufCur = m_lpBufStart;//重置当前指向
+  }
+}
+
+              m_lpBufCur 
+ 18 88.5 8 zhangsan|
+|--------------------------------------------------------------------|
+|                                                                    |
+m_lpBufStart                                                       m_lpBufMax 
+
