@@ -1,0 +1,23 @@
+***********************************************
+绘图相关的
+***********************************************
+CPaintDC dc(pView) === CPaintDC::CPaintDC（...）//函数内部this为&dc
+{
+  Attach(::BeginPaint(pView->m_hWnd, &m_ps)）//函数内部this为&dc
+  {
+    m_hDC = hDC;//将BeginPaint获取的绘图设备句柄  保存到dc对象的一个成员变量中
+    SetAttribDC(m_hDC)//函数内部this为&dc
+    {
+      m_hAttribDC = m_hDC;//dc对象的另一个成员变量也保存了绘图设备句柄
+    }
+  }
+}
+
+CPen pen(PS_SOLID, 2, RGB(255,0,0)) === CPen::CPen(PS_SOLID, 2, RGB(255,0,0))
+//函数内部this &pen
+{
+  Attach(::CreatePen(PS_SOLID, 2, RGB(255,0,0))）//函数内部this &pen
+  {
+    m_hObject = hObject;//将::CreatePen获取的画笔句柄，保存到pen对象的一个成员变量中
+  }
+}
