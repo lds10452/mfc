@@ -1,0 +1,108 @@
+****************************************************
+模式对话框架构程序的执行过程
+****************************************************
+AFX_MODULE_STATE aaa;//当前程序模块状态信息
+AFX_MODULE_THREAD_STATE bbb; //当前程序线程状态信息
+
+CWinApp::CWinApp()//构造全局对象CMyWinApp theApp
+{
+  AFX_MODULE_STATE* pModuleState = AfxGetModuleState();
+               //获取全局变量&aaa
+  AFX_MODULE_THREAD_STATE* pThreadState = pModuleState->m_thread;
+               //获取全局变量&bbb
+  pThreadState->m_pCurrentWinThread = this;//将&theApp保存到bbb的一个成员中
+  
+  AfxGetThread()
+  {
+     AFX_MODULE_THREAD_STATE* pState = AfxGetModuleThreadState();//获取&bbb
+     CWinThread* pThread = pState->m_pCurrentWinThread;
+     return pThread;//返回的为&theApp
+  }
+  pModuleState->m_pCurrentWinApp = this;//将&theApp保存到aaa的一个成员中
+  AfxGetApp()
+  {
+    return AfxGetModuleState()->m_pCurrentWinApp；//返回&theApp
+  }
+}
+进入入口函数
+WinMain(...)
+{
+  AfxWinMain(..)
+  {
+    CWinThread* pThread = AfxGetThread();
+    CWinApp* pApp = AfxGetApp();//获取&theApp
+    pApp->InitApplication();//利用theApp调用应用程序类的成员 虚函数（初始化）
+    pThread->InitInstance()
+    {
+      	CMyDlg dlg===CDialog(IDD)//函数内部this为&dlg
+        {
+          m_lpszTemplateName=MAKEINTRESOURCE(IDD)//将对话框资源ID保存dlg的一个成员中
+        }
+	m_pMainWnd = &dlg;
+	dlg.DoModal( )//函数内部this为&dlg
+        {
+          HRSRC hResource = ::FindResource(hInst, m_lpszTemplateName, RT_DIALOG);
+	  hDialogTemplate = LoadResource(hInst, hResource);
+	  lpDialogTemplate = (LPCDLGTEMPLATE)LockResource(hDialogTemplate);
+                 //以上三行代码，查找加载并锁定对话框资源
+          HWND hWndParent = PreModal();//获取父窗口的句柄
+          ::EnableWindow(hWndParent, FALSE);//将父窗口设置为不可用状态
+          CreateDlgIndirect(...)；//间接方式创建无模式对话框
+
+          RunModalLoop(...)//函数内部this为&dlg
+          {
+            for (;;)  //消息循环
+            {
+              while(没有消息){ 空闲处理 }
+              do{
+                消息循环的相关函数;
+                if (!ContinueModal())//函数内部this为&dlg（m_nFlags(24/8) & 0x0010）
+		  goto ExitModal;
+
+
+              }while(....);
+            }
+            ExitModal：
+               return m_nModalResult;
+          } 
+        }
+        ::EnableWindow(hWndParent, TRUE);//将父窗口设置为可用
+        DestroyWindow();//销毁无模式对话框
+        return m_nModalResult;//????dlg的一个成员变量
+    }
+  }
+}
+01000
+10000
+--------
+00000
+
+
+******************************
+父类，处理点击OK按钮发出的WM_COMMAND消息
+******************************
+CDialog::OnOK()//函数内部this为&dlg
+{
+  EndDialog(IDOK) //参数为1
+  {
+    EndModalLoop(IDOK)//函数内部this为&dlg
+    {
+      m_nModalResult = IDOK; // 1
+      m_nFlags = 8;
+    }
+    ::EndDialog(m_hWnd, nResult);//只能将无模式对话框隐藏
+  }
+}
+
+CDialog::OnCancel()//函数内部this为&dlg
+{
+  EndDialog(IDCANCEL) //参数为2
+  {
+    EndModalLoop(IDCANCEL)//函数内部this为&dlg
+    {
+      m_nModalResult = IDCANCEL; // 1
+      m_nFlags = 8;
+    }
+    ::EndDialog(m_hWnd, nResult);//只能将无模式对话框隐藏
+  }
+}
