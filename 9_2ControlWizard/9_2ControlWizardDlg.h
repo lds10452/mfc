@@ -47,4 +47,13 @@ public:
 	CStatic m_group;
 	CStatic m_st;
 	CStatic m_pictureControl;
+	afx_msg void OnCbnSelchangeCombo2();
+	CComboBox m_simple;
+	CComboBox m_dropdown;
+	CComboBox m_droplist;
+	afx_msg void OnBnClickedButton3();
+	afx_msg void OnBnClickedButton4();
+	afx_msg void OnBnClickedButton5();
+	afx_msg void OnBnClickedButton6();
+	afx_msg void OnEditchangeCombo1();
 };

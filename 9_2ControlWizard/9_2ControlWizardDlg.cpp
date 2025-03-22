@@ -6,6 +6,7 @@
 // group
 // 文本静态框（label）
 // 图像静态框
+// 组合框
 /////////////
 
 #include "pch.h"
@@ -43,6 +44,9 @@ void CMy92ControlWizardDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GROUP, m_group);
 	DDX_Control(pDX, IDC_ST, m_st);
 	DDX_Control(pDX, IDC_PS, m_pictureControl);
+	DDX_Control(pDX, IDC_COMBO1, m_simple);
+	DDX_Control(pDX, IDC_COMBO2, m_dropdown);
+	DDX_Control(pDX, IDC_COMBO3, m_droplist);
 }
 
 BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
@@ -54,6 +58,12 @@ BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK1, &CMy92ControlWizardDlg::OnClickedCheck1)
 	ON_BN_CLICKED(IDC_RADIO1, &CMy92ControlWizardDlg::OnClickedRadio1)
 	ON_BN_CLICKED(IDC_RADIO2, &CMy92ControlWizardDlg::OnClickedRadio2)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &CMy92ControlWizardDlg::OnCbnSelchangeCombo2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CMy92ControlWizardDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON4, &CMy92ControlWizardDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CMy92ControlWizardDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON6, &CMy92ControlWizardDlg::OnBnClickedButton6)
+	ON_CBN_EDITCHANGE(IDC_COMBO1, &CMy92ControlWizardDlg::OnEditchangeCombo1)
 END_MESSAGE_MAP()
 
 
@@ -79,6 +89,19 @@ BOOL CMy92ControlWizardDlg::OnInitDialog()
 	m_check.SetCheck(true);
 
 	m_radio1.SetCheck(true);
+
+	for (int i = 0; i < 100; i++) {
+		char szItem[256];
+		sprintf_s(szItem, "Item%d", i);
+		m_simple.AddString(szItem);//追加选项
+		m_simple.SetItemData(i, 1000 + i);
+
+		m_dropdown.AddString(szItem);
+		m_droplist.AddString(szItem);
+	}
+	m_simple.SetCurSel(99);
+	m_dropdown.SetCurSel(99);
+	m_droplist.SetCurSel(99);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -169,4 +192,51 @@ void CMy92ControlWizardDlg::OnClickedRadio2()
 {
 	m_radio1.SetCheck(false);
 	m_radio2.SetCheck(true);
+}
+
+
+void CMy92ControlWizardDlg::OnCbnSelchangeCombo2()
+{
+	int index = m_dropdown.GetCurSel();
+	m_simple.SetCurSel(index);
+	m_droplist.SetCurSel(index);
+}
+
+
+void CMy92ControlWizardDlg::OnBnClickedButton3()
+{
+	m_simple.ResetContent();
+	m_dropdown.ResetContent();
+	m_droplist.ResetContent();
+}
+
+
+void CMy92ControlWizardDlg::OnBnClickedButton4()
+{
+	m_simple.DeleteString(m_simple.GetCurSel());
+	m_dropdown.DeleteString(m_dropdown.GetCurSel());
+	m_droplist.DeleteString(m_droplist.GetCurSel());
+}
+
+
+void CMy92ControlWizardDlg::OnBnClickedButton5()
+{
+	CString str;
+	m_simple.GetLBText(m_simple.GetCurSel(), str);
+	AfxMessageBox(str);
+}
+
+
+void CMy92ControlWizardDlg::OnBnClickedButton6()
+{
+	DWORD data = m_simple.GetItemData(m_simple.GetCurSel());
+	CString str;
+	str.Format("附加数据：%d", data);
+	AfxMessageBox(str);
+}
+
+
+void CMy92ControlWizardDlg::OnEditchangeCombo1()
+{
+	AfxMessageBox("文本被修改");
 }
