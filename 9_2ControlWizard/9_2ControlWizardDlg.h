@@ -59,4 +59,10 @@ public:
 	CSliderCtrl m_slider;
 	afx_msg void OnCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult);
 	CProgressCtrl m_pro;
+	CListCtrl m_list;
+	CComboBox m_combox4;
+	afx_msg void OnCbnSelchangeCombo4();
+
+	void ShowFile(CString path);
+	afx_msg void OnDblclkList1(NMHDR* pNMHDR, LRESULT* pResult);
 };

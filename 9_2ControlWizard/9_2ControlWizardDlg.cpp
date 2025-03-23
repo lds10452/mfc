@@ -50,6 +50,8 @@ void CMy92ControlWizardDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO3, m_droplist);
 	DDX_Control(pDX, IDC_SLIDER1, m_slider);
 	DDX_Control(pDX, IDC_PROGRESS1, m_pro);
+	DDX_Control(pDX, IDC_LIST1, m_list);
+	DDX_Control(pDX, IDC_COMBO4, m_combox4);
 }
 
 BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
@@ -68,6 +70,8 @@ BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON6, &CMy92ControlWizardDlg::OnBnClickedButton6)
 	ON_CBN_EDITCHANGE(IDC_COMBO1, &CMy92ControlWizardDlg::OnEditchangeCombo1)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CMy92ControlWizardDlg::OnCustomdrawSlider1)
+	ON_CBN_SELCHANGE(IDC_COMBO4, &CMy92ControlWizardDlg::OnCbnSelchangeCombo4)
+	ON_NOTIFY(NM_DBLCLK, IDC_LIST1, &CMy92ControlWizardDlg::OnDblclkList1)
 END_MESSAGE_MAP()
 
 
@@ -109,7 +113,63 @@ BOOL CMy92ControlWizardDlg::OnInitDialog()
 
 	m_slider.SetRange(0, 100);
 	m_slider.SetPos(50);
+
+	//-----------------------------------------------
+	m_combox4.AddString("图标");
+	m_combox4.AddString("小图标");
+	m_combox4.AddString("列表");
+	m_combox4.AddString("报表");
+	m_combox4.SetCurSel(0);
+
+	m_list.InsertColumn(0, "名称", LVCFMT_LEFT, 150);
+	m_list.InsertColumn(1, "修改日期", LVCFMT_LEFT, 150);
+	m_list.InsertColumn(2, "类型", LVCFMT_LEFT, 150);
+	m_list.InsertColumn(3, "大小", LVCFMT_LEFT, 150);
+	m_list.SetExtendedStyle(LVS_EX_GRIDLINES);//经纬线
+
+	CImageList* pImgLst = new CImageList;
+	pImgLst->Create(IDB_BITMAP2, 24, 1, RGB(255, 255, 255));
+
+	m_list.SetImageList(pImgLst, LVSIL_NORMAL);//将图像链表应用在列表控件的图标风格中
+	m_list.SetImageList(pImgLst, LVSIL_SMALL);//将图像链表应用在列表控件的其他风格中
+
+	ShowFile("c:");
+	/*//测试数据
+		m_list.InsertItem( 0, "目录", 0 );
+		m_list.SetItemText( 0, 1, "2100.5.7" );
+		m_list.SetItemText( 0, 2, "Dir" );
+		m_list.SetItemText( 0, 3, "3M" );
+
+		m_list.InsertItem( 1, "文件", 1 );
+		m_list.SetItemText( 1, 1, "2100.12.17" );
+		m_list.SetItemText( 1, 2, "File" );
+		m_list.SetItemText( 1, 3, "13K" );*/
+	//---------------------------------------------------------
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
+}
+
+void CMy92ControlWizardDlg::ShowFile(CString path) {
+	m_list.DeleteAllItems();
+	CString strPath = path;
+	strPath += "/*.*";
+	CFileFind find;//文件搜索类对象
+	BOOL goFind = find.FindFile(strPath); //开启查找
+	int i = 0;
+	while (goFind) {
+		goFind = find.FindNextFile();//找到当前文件，将文件信息保存find对象的成员变量中
+		CString filename = find.GetFileName();
+		CString* filepath = new CString;
+		*filepath = find.GetFilePath();
+		if (find.IsDirectory()) {
+			m_list.InsertItem(i, filename, 0);
+			m_list.SetItemData(i, (DWORD_PTR)filepath);
+		}
+		else {
+			m_list.InsertItem(i, filename, 1);
+		}
+		i++;
+	}
+	find.Close();
 }
 
 // 如果向对话框添加最小化按钮，则需要下面的代码
@@ -259,4 +319,34 @@ void CMy92ControlWizardDlg::OnCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult)
 
 	m_pro.SetPos(pos);
 	*pResult = 0;
+}
+
+
+void CMy92ControlWizardDlg::OnCbnSelchangeCombo4()
+{
+	switch (m_combox4.GetCurSel()) {
+	case 0://图标
+		m_list.ModifyStyle(LVS_SMALLICON | LVS_LIST | LVS_REPORT, LVS_ICON);
+		break;
+	case 1://小图标
+		m_list.ModifyStyle(LVS_ICON | LVS_LIST | LVS_REPORT, LVS_SMALLICON);
+		break;
+	case 2://列表
+		m_list.ModifyStyle(LVS_ICON | LVS_SMALLICON | LVS_REPORT, LVS_LIST);
+		break;
+	case 3://报表
+		m_list.ModifyStyle(LVS_ICON | LVS_LIST | LVS_SMALLICON, LVS_REPORT);
+		break;
+	}
+}
+
+
+void CMy92ControlWizardDlg::OnDblclkList1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	*pResult = 0;
+	DWORD_PTR nData = m_list.GetItemData(pNMItemActivate->iItem);//双击选项
+	CString* filepath = (CString*)nData;
+	if (filepath != NULL)
+		ShowFile(*filepath);
 }
