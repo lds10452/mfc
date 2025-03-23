@@ -56,4 +56,7 @@ public:
 	afx_msg void OnBnClickedButton5();
 	afx_msg void OnBnClickedButton6();
 	afx_msg void OnEditchangeCombo1();
+	CSliderCtrl m_slider;
+	afx_msg void OnCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult);
+	CProgressCtrl m_pro;
 };

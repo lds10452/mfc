@@ -6,7 +6,8 @@
 // group
 // 文本静态框（label）
 // 图像静态框
-// 组合框
+// 组合框、列表框？
+// 滑块slider、进度条？
 /////////////
 
 #include "pch.h"
@@ -47,6 +48,8 @@ void CMy92ControlWizardDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO1, m_simple);
 	DDX_Control(pDX, IDC_COMBO2, m_dropdown);
 	DDX_Control(pDX, IDC_COMBO3, m_droplist);
+	DDX_Control(pDX, IDC_SLIDER1, m_slider);
+	DDX_Control(pDX, IDC_PROGRESS1, m_pro);
 }
 
 BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
@@ -64,6 +67,7 @@ BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON5, &CMy92ControlWizardDlg::OnBnClickedButton5)
 	ON_BN_CLICKED(IDC_BUTTON6, &CMy92ControlWizardDlg::OnBnClickedButton6)
 	ON_CBN_EDITCHANGE(IDC_COMBO1, &CMy92ControlWizardDlg::OnEditchangeCombo1)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CMy92ControlWizardDlg::OnCustomdrawSlider1)
 END_MESSAGE_MAP()
 
 
@@ -102,6 +106,9 @@ BOOL CMy92ControlWizardDlg::OnInitDialog()
 	m_simple.SetCurSel(99);
 	m_dropdown.SetCurSel(99);
 	m_droplist.SetCurSel(99);
+
+	m_slider.SetRange(0, 100);
+	m_slider.SetPos(50);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -239,4 +246,17 @@ void CMy92ControlWizardDlg::OnBnClickedButton6()
 void CMy92ControlWizardDlg::OnEditchangeCombo1()
 {
 	AfxMessageBox("文本被修改");
+}
+
+
+void CMy92ControlWizardDlg::OnCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	int pos=m_slider.GetPos();
+	CString str;
+	str.Format("滑块位置:%d", pos);
+	this->SetWindowText(str);
+
+	m_pro.SetPos(pos);
+	*pResult = 0;
 }
