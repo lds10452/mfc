@@ -52,6 +52,7 @@ void CMy92ControlWizardDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PROGRESS1, m_pro);
 	DDX_Control(pDX, IDC_LIST1, m_list);
 	DDX_Control(pDX, IDC_COMBO4, m_combox4);
+	DDX_Control(pDX, IDC_TREE1, m_tree);
 }
 
 BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
@@ -72,6 +73,8 @@ BEGIN_MESSAGE_MAP(CMy92ControlWizardDlg, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CMy92ControlWizardDlg::OnCustomdrawSlider1)
 	ON_CBN_SELCHANGE(IDC_COMBO4, &CMy92ControlWizardDlg::OnCbnSelchangeCombo4)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST1, &CMy92ControlWizardDlg::OnDblclkList1)
+	ON_BN_CLICKED(IDC_BUTTON7, &CMy92ControlWizardDlg::OnBnClickedButton7)
+	ON_BN_CLICKED(IDC_BUTTON8, &CMy92ControlWizardDlg::OnBnClickedButton8)
 END_MESSAGE_MAP()
 
 
@@ -145,6 +148,18 @@ BOOL CMy92ControlWizardDlg::OnInitDialog()
 		m_list.SetItemText( 1, 2, "File" );
 		m_list.SetItemText( 1, 3, "13K" );*/
 	//---------------------------------------------------------
+
+	CImageList* pImgTree = new CImageList;
+	pImgTree->Create(IDB_BITMAP1, 12, 1, RGB(255, 255, 255));
+
+	m_tree.SetImageList(pImgTree, LVSIL_NORMAL);
+
+	HTREEITEM nRoot = m_tree.InsertItem("达内集团", 0, 1, NULL);
+	m_tree.InsertItem("中关村中心", 2, 3, nRoot);
+	m_tree.InsertItem("亚运村中心", 2, 3, nRoot);
+	m_tree.InsertItem("天坛中心", 2, 3, nRoot);
+	m_tree.SetItemHeight(25);
+	//--------------------------------------------
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -349,4 +364,16 @@ void CMy92ControlWizardDlg::OnDblclkList1(NMHDR* pNMHDR, LRESULT* pResult)
 	CString* filepath = (CString*)nData;
 	if (filepath != NULL)
 		ShowFile(*filepath);
+}
+
+
+void CMy92ControlWizardDlg::OnBnClickedButton7()
+{
+	m_tree.DeleteItem(m_tree.GetSelectedItem());
+}
+
+
+void CMy92ControlWizardDlg::OnBnClickedButton8()
+{
+	AfxMessageBox(m_tree.GetItemText(m_tree.GetSelectedItem()));
 }

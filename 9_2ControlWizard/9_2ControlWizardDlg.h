@@ -65,4 +65,7 @@ public:
 
 	void ShowFile(CString path);
 	afx_msg void OnDblclkList1(NMHDR* pNMHDR, LRESULT* pResult);
+	CTreeCtrl m_tree;
+	afx_msg void OnBnClickedButton7();
+	afx_msg void OnBnClickedButton8();
 };
